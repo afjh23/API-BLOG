@@ -25,11 +25,37 @@ export const update = async (req, res) => {
   // cambiar por patch, ya que los datos no van a estar completos, para un mejor uso
   try {
     const { id } = req.params
-    const { title, content, image, createdDate, userId } = req.body
-    if (!title || !content || !image || !createdDate || !userId) return res.status(400).json({ message: 'Falta ingresar datos' })
-    const [result] = await pool.execute('UPDATE posts SET name=? WHERE category_id=?', [title, content, image, createdDate, userId, id])
+    const { content, createdDate, userId, postId } = req.body
+    /* if (!title || !content || !image || !createdDate || !userId) return res.status(400).json({ message: 'Falta ingresar datos' })
+    const [result] = await pool.execute('UPDATE posts SET name=? WHERE category_id=?', [title, content, image, createdDate, userId, id]) */
+
+    let query = 'UPDATE comments SET '
+    const params = []
+
+    if (content) {
+      query += 'content=?,'
+      params.push(content)
+    }
+    if (createdDate) {
+      query += 'created_date=?,'
+      params.push(createdDate)
+    }
+    if (userId) {
+      query += 'user_id=?,'
+      params.push(userId)
+    }
+    if (postId) {
+      query += 'post_id=?,'
+      params.push(postId)
+    }
+
+    query = query.slice(0, -1)
+    query += ' WHERE comment_id=?'
+    params.push(id)
+    console.log(query)
+    const [result] = await pool.execute(query, params)
     if (result.affectedRows !== 1 && !result.insertId) {
-      return res.status(500).json({ message: 'No se pudo actualizar la comentario' })
+      return res.status(500).json({ message: 'No se pudo actualizar el comentario' })
     } else {
       return res.status(201).json({ message: 'Comentario actualizado' })
     }

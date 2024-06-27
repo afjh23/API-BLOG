@@ -23,6 +23,7 @@ export const readAll = async (req, res) => {
   return res.json(result)
 }
 
+/*  METODO PUT
 export const update = async (req, res) => {
   try {
     const { id } = req.params
@@ -37,6 +38,55 @@ export const update = async (req, res) => {
     }
   } catch (error) {
     return res.status(500).json({ message: 'Error interno' })
+  }
+} */
+
+export const update = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { fname, lname, phone, email, password, role, createdDate } = req.body
+    let query = 'UPDATE users SET '
+    const params = []
+
+    if (fname) {
+      query += 'fname=?,'
+      params.push(fname)
+    }
+    if (lname) {
+      query += 'lname=?,'
+      params.push(lname)
+    }
+    if (phone) {
+      query += 'phone=?,'
+      params.push(phone)
+    }
+    if (email) {
+      query += 'email=?,'
+      params.push(email)
+    }
+    if (password) {
+      query += 'password=?,'
+      params.push(password)
+    }
+    if (role) {
+      query += 'role=?,'
+      params.push(role)
+    }
+    if (createdDate) {
+      query += 'created_date=?,'
+      params.push(createdDate)
+    }
+    query = query.slice(0, -1)
+    query += ' WHERE user_id=?'
+    params.push(id)
+    const [resultado] = await pool.execute(query, params)
+    if (resultado.affectedRows !== 1) {
+      return res.status(500).json({ message: 'No se pudo actualizar el usuario' })
+    } else {
+      return res.status(200).json({ message: 'User actualizado' })
+    }
+  } catch (error) {
+    return res.status(500).json({ message: 'Error interno', details: error.message })
   }
 }
 
