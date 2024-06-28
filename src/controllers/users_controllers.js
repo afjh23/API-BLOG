@@ -92,7 +92,7 @@ export const update = async (req, res) => {
     if (resultado.affectedRows !== 1) {
       return res.status(500).json({ message: 'No se pudo actualizar el usuario' })
     } else {
-      return res.status(200).json({ message: 'User actualizado' })
+      return res.status(200).json({ message: 'Usuario actualizado' })
     }
   } catch (error) {
     return res.status(500).json({ message: 'Error interno', details: error.message })
