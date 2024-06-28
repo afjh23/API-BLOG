@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-06-2024 a las 09:44:01
+-- Tiempo de generación: 28-06-2024 a las 16:27:00
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -64,20 +64,16 @@ CREATE TABLE `comments` (
 --
 
 INSERT INTO `comments` (`comment_id`, `content`, `created_date`, `user_id`, `post_id`) VALUES
-(1, 'This is a fascinating article on AI in DPI!', '2024-06-01 10:00:00', 3, 1),
 (2, 'Great tips for staying healthy. Thanks for sharing!', '2024-06-02 11:00:00', 4, 2),
 (3, 'I would love to visit these places!', '2024-06-03 12:00:00', 5, 3),
 (4, 'These recipes look amazing. Can’t wait to try them!', '2024-06-04 13:00:00', 6, 4),
 (5, 'I have been trying to adopt a minimalist lifestyle, and this article is really helpful.', '2024-06-05 14:00:00', 7, 5),
 (6, 'Education is indeed the foundation of progress.', '2024-06-06 15:00:00', 8, 6),
-(7, 'AI is definitely the future. Exciting times ahead!', '2024-06-01 11:00:00', 9, 1),
 (8, 'I learned a lot from this post. Thanks!', '2024-06-02 12:00:00', 10, 2),
 (9, 'Adding these places to my bucket list!', '2024-06-03 13:00:00', 3, 3),
 (10, 'I love vegan food. Thanks for the recipes!', '2024-06-04 14:00:00', 4, 4),
 (11, 'Living minimally has changed my life for the better.', '2024-06-05 15:00:00', 5, 5),
 (12, 'Every child deserves access to quality education.', '2024-06-06 16:00:00', 6, 6),
-(13, 'This is a fascinating article on AI!', '2024-06-01 15:00:00', 3, 1),
-(14, 'This is a fascinating article on AI!', '2024-06-01 15:00:00', 3, 1),
 (19, 'Feisimo', '2024-06-28 00:00:00', 1, 24);
 
 -- --------------------------------------------------------
@@ -100,7 +96,6 @@ CREATE TABLE `posts` (
 --
 
 INSERT INTO `posts` (`post_id`, `title`, `content`, `image`, `created_date`, `user_id`) VALUES
-(1, 'The Future of AI', 'Exploring the advancements and potential of artificial intelligence in various fields.', 'ai_future.jpg', '2024-06-01', 1),
 (2, 'Healthy Living Tip\'s', 'Simple and effective tips for maintaining a healthy lifestyle.', 'healthy_living.jpg', '2024-06-02', 2),
 (3, 'Top Travel Destinations 2024', 'A list of must-visit travel destinations for 2024.', 'travel_2024.jpg', '2024-06-03', 3),
 (4, 'Delicious Vegan Recipes', 'Tasty and easy-to-make vegan recipes for everyone.', 'vegan_recipes.jpg', '2024-06-04', 4),
@@ -127,7 +122,6 @@ CREATE TABLE `posts_categories` (
 --
 
 INSERT INTO `posts_categories` (`post_category_id`, `post_id`, `category_id`) VALUES
-(1, 1, 1),
 (2, 2, 2),
 (3, 3, 3),
 (4, 4, 4),
@@ -138,9 +132,6 @@ INSERT INTO `posts_categories` (`post_category_id`, `post_id`, `category_id`) VA
 (9, 24, 1),
 (10, 24, 2),
 (11, 24, 3),
-(12, 25, 1),
-(13, 25, 2),
-(14, 25, 3),
 (18, 9, 1);
 
 -- --------------------------------------------------------
@@ -194,8 +185,8 @@ ALTER TABLE `categories`
 --
 ALTER TABLE `comments`
   ADD PRIMARY KEY (`comment_id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `post_id` (`post_id`);
+  ADD KEY `comments_ibfk_1` (`user_id`),
+  ADD KEY `comments_ibfk_3` (`post_id`);
 
 --
 -- Indices de la tabla `posts`
@@ -209,8 +200,8 @@ ALTER TABLE `posts`
 --
 ALTER TABLE `posts_categories`
   ADD PRIMARY KEY (`post_category_id`),
-  ADD KEY `post_id` (`post_id`),
-  ADD KEY `category_id` (`category_id`);
+  ADD KEY `posts_categories_ibfk_2` (`category_id`),
+  ADD KEY `post_id` (`post_id`);
 
 --
 -- Indices de la tabla `users`
@@ -238,13 +229,13 @@ ALTER TABLE `comments`
 -- AUTO_INCREMENT de la tabla `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT de la tabla `posts_categories`
 --
 ALTER TABLE `posts_categories`
-  MODIFY `post_category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `post_category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT de la tabla `users`
@@ -260,9 +251,9 @@ ALTER TABLE `users`
 -- Filtros para la tabla `comments`
 --
 ALTER TABLE `comments`
-  ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
-  ADD CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`),
-  ADD CONSTRAINT `post_id` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `comments_ibfk_3` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `posts`
@@ -274,8 +265,8 @@ ALTER TABLE `posts`
 -- Filtros para la tabla `posts_categories`
 --
 ALTER TABLE `posts_categories`
-  ADD CONSTRAINT `posts_categories_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`),
-  ADD CONSTRAINT `posts_categories_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`);
+  ADD CONSTRAINT `post_id` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `posts_categories_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
