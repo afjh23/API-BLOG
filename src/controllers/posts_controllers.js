@@ -3,15 +3,22 @@ import { pool } from '../config/db.js'
 export const create = async (req, res) => {
   console.log(req.body)
   try {
-    const { title, content, image, createdDate, userId } = req.body
-    const [result] = await pool.execute('INSERT INTO posts (title, content, image, created_date, user_id) VALUES (?,?,?,?,?)', [title, content, image, createdDate, userId])
+    const { title, content, image, userId, categories } = req.body
+    if (!title || !content || !image || !userId) {
+      return res.status(400).json({ message: 'Faltan campos obligatorios' })
+    }
+    const [result] = await pool.execute('INSERT INTO posts (title, content, image, created_date, user_id) VALUES (?,?,?,CURDATE(),?)', [title, content, image, userId])
 
     if (result.affectedRows !== 1 && !result.insertId) {
       return res.status(500).json({ message: 'Hubo un error al crear la categoria' })
     } else {
+      const postId = result.insertId
+      const postCategories = categories.map((categoryId) => `(${postId}, ${categoryId})`).join(',')
+      await pool.query(`INSERT INTO posts_categories (post_id, category_id) VALUES ${postCategories}`)
       res.status(201).json({ message: 'Categoria guardada' })
     }
   } catch (error) {
+    console.error(error)
     return res.status(500).json({ message: 'Error interno' })
   }
 }
@@ -51,7 +58,7 @@ export const update = async (req, res) => {
       return res.status(201).json({ message: 'Categoria actualizada' })
     } */
     const { id } = req.params
-    const { title, content, image, createdDate, userId } = req.body
+    const { title, content, image, createdDate, userId, categories } = req.body
     let query = 'UPDATE posts SET '
     const params = []
     if (title) {
@@ -81,6 +88,9 @@ export const update = async (req, res) => {
     if (resultado.affectedRows !== 1) {
       return res.status(500).json({ message: 'No se pudo actualizar el usario' })
     } else {
+      if (categories !== undefined) {
+        await updatePostCategories(id, categories)
+      }
       return res.status(200).json({ message: 'User actualizado' })
     }
   } catch (error) {
@@ -95,5 +105,16 @@ export const deleteById = async (req, res) => {
     return res.json({ message: 'Categoría eliminado' })
   } else {
     return res.json({ message: 'No se puede eliminar' })
+  }
+}
+
+export const updatePostCategories = async (postId, categories) => {
+  try {
+    await pool.execute('DELETE FROM posts_categories WHERE post_id =?', [postId])
+
+    const categoryValues = categories.map((categoryId) => `(${postId}, ${categoryId})`).join(',')
+    await pool.execute(`INSERT INTO posts_categories (post_id, category_id) VALUES ${categoryValues}`)
+  } catch (error) {
+    console.error(error)
   }
 }

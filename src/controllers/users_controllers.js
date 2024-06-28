@@ -19,8 +19,17 @@ export const create = async (req, res) => {
 }
 
 export const readAll = async (req, res) => {
-  const [result] = await pool.query('SELECT * FROM users')
-  return res.json(result)
+  try {
+    /*  const { id } = req.params
+    const [user] = await pool.query('SELECT role  FROM users WHERE user_id=?', [id])
+
+    if (user[0].role !== 'admin') { return res.status(403).json({ message: 'Acceso denegado' }) } */
+
+    const [result] = await pool.query('SELECT * FROM users')
+    return res.json(result)
+  } catch (error) {
+    return res.status(500).json({ message: 'Error interno' })
+  }
 }
 
 /*  METODO PUT
